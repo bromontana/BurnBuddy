@@ -1,5 +1,7 @@
 # BurnBuddy 
 
+Jesus Barrios, Frank Calas, Samantha Outlan, Jessie Pullaro
+For Swamphacks2017
 
 ## Introduciton 
 
