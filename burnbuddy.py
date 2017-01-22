@@ -1,18 +1,17 @@
-from flask import Flask, request, redirect
-from twilio import twiml
+from clarifai import rest
+from clarifai.rest import ClarifaiApp
 
-app = Flask(__name__)
+app = ClarifaiApp("WQ9TJHAvPg5lsfAnKGXDqoygEAJWAOWzEFTkV-gW", "aoVEstd0WjXLEoJSE3rhi4LO1woDKWLUA-s-8enM")
 
-@app.route("/sms", methods=['GET', 'POST'])
-def sms_reply():
-    """Respond to incoming calls with a simple text message."""
-    # Start our TwiML response
-    resp = twiml.Response()
+model = app.models.get("burns")
 
-    # Add a message
-    resp.message("The Robots are coming! Head for the hills!")
+imageResponse = model.predict_by_filename("C:/Users/thepr/Documents/Hackathons/BurnBuddy/second1.jpg")
 
-    return str(resp)
+print (imageResponse['outputs'][0]['data']['concepts'][0]['id'] ,':',  imageResponse['outputs'][0]['data']['concepts'][0]['value'])
 
-if __name__ == "__main__":
-    app.run(debug=True)
+if ( imageResponse['outputs'][0]['data']['concepts'][0]['id'] == u'not burn' and (imageResponse['outputs'][0]['data']['concepts'][0]['value'] > 0.5)):
+    print("Don't be a wuss")
+elif ( imageResponse['outputs'][0]['data']['concepts'][0]['id'] == u'first degree burn' and (imageResponse['outputs'][0]['data']['concepts'][0]['value'] > 0.4)):
+    print("Slap an ice pack on that bitch")    
+elif ( imageResponse['outputs'][0]['data']['concepts'][0]['id'] == u'second degree burn' and (imageResponse['outputs'][0]['data']['concepts'][0]['value'] > 0.4)):
+    print("Slather your arm in cream cheese and go see a doctor yo!")       
