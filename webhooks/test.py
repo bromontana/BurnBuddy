@@ -1,0 +1,51 @@
+from flask import Flask, request, redirect
+from twilio import twiml
+import requests
+import logging
+from clarifai import rest
+from clarifai.rest import ClarifaiApp
+from twilio.rest import TwilioRestClient
+
+logging.basicConfig(level=logging.INFO)
+
+app = Flask(__name__)
+
+
+@app.route("/MessageStatus", methods=['POST'])
+def we_only_need_one():
+    response = twiml.Response()
+
+    if request.form['NumMedia'] != '0':
+
+        app = ClarifaiApp("WQ9TJHAvPg5lsfAnKGXDqoygEAJWAOWzEFTkV-gW", "aoVEstd0WjXLEoJSE3rhi4LO1woDKWLUA-s-8enM")
+        model = app.models.get("burns")
+
+        imageResponse = model.predict_by_url(request.form['MediaUrl0'])
+
+        print (imageResponse['outputs'][0]['data']['concepts'][0]['id'] ,':',  imageResponse['outputs'][0]['data']['concepts'][0]['value'])
+
+        if ( imageResponse['outputs'][0]['data']['concepts'][0]['id'] == u'not burn' and (imageResponse['outputs'][0]['data']['concepts'][0]['value'] > 0.1)):
+            with response.message() as message:
+                message.body = "Hey, don't sweat it you don't have any burns!"
+        elif ( imageResponse['outputs'][0]['data']['concepts'][0]['id'] == u'first degree burn' and (imageResponse['outputs'][0]['data']['concepts'][0]['value'] > 0.1)):
+            with response.message() as message:
+                message.body = "You have a first degree burn. Soak the burn in cool water for at least 5 minutes to reduce swelling. Treat the burn with a skin care product that protects and heals skin, such as aloe vera. You may wrap a dry guaze bandage loosely around the burn to protect the area. Pain relievers may be of help."
+        elif ( imageResponse['outputs'][0]['data']['concepts'][0]['id'] == u'second degree burn' and (imageResponse['outputs'][0]['data']['concepts'][0]['value'] > 0.1)):
+            with response.message() as message:
+                message.body = "You have a second degree burn. Soak the burn in cool water for at least 15 mins. If avaiable put on anibiotic cream. Cover burn with a dry nonstick dressing, held in place with gauze or tape. Change your dressings daily and please make sure not to scratch the burned skin. We recommend letting a local doctor checking out the burned area."
+        else:
+            with response.message() as message:
+                message.body = "Based on our results you should seek medical attention right away. You may be suffering from third or fourth degree burns. To reduce pain and swelling you can cover the burn with a cool, wet sterile bandage or clean cloth until you receive medical attention."
+    else:
+        response.message("Could not find an image in your message please try again")
+
+    #message_sid = request.values.get('MessageSid')
+    return str(response)
+
+#get the image
+
+
+
+
+if __name__ == "__main__":
+    app.run(debug=True)

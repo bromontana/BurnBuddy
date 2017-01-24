@@ -9,16 +9,20 @@ app = Flask(__name__)
 @app.route("/MessageStatus", methods=['GET', 'POST'])
 def hello_monkey():
 
-    message_sid = request.values.get('MessageSid')
+    message_sid = request.values.get('MessageSid', None)
+    logging.info('SID: {}, Status: {}'.format(mess
+
+
+
+
+
 
     """Respond to incoming calls with a simple text message."""
 
     resp = twilio.twiml.Response()
     resp.message("Hookers and blow")
-    print (message_sid)
+    print (request.values.get('sid'))
     return str(resp)
-
-
 
 if __name__ == "__main__":
     app.run(debug=True)
